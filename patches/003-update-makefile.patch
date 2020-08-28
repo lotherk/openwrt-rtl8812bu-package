@@ -1,0 +1,40 @@
+--- a/Makefile
++++ b/Makefile
+@@ -1252,14 +1252,28 @@ STAGINGMODDIR := /lib/modules/$(KVER)/kernel/drivers/staging
+ endif
+ 
+ ifeq ($(CONFIG_PLATFORM_I386_PC), y)
++ifdef EXT_EXTRA_CFLAGS
++EXTRA_CFLAGS += $(EXT_EXTRA_CFLAGS)
++else
+ EXTRA_CFLAGS += -DCONFIG_LITTLE_ENDIAN
+ EXTRA_CFLAGS += -DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT
++endif
++ifndef ARCH
+ SUBARCH := $(shell uname -m | sed -e s/i.86/i386/ | sed -e s/aarch64/arm64/)
+ ARCH ?= $(SUBARCH)
++endif
++ifndef CROSS_COMPILE
+ CROSS_COMPILE ?=
++endif
++ifndef KVER
+ KVER  := $(shell uname -r)
++endif
++ifndef KSRC
+ KSRC := /lib/modules/$(KVER)/build
++endif
++ifndef MODDESTDIR
+ MODDESTDIR := /lib/modules/$(KVER)/kernel/drivers/net/wireless/
++endif
+ INSTALL_PREFIX :=
+ STAGINGMODDIR := /lib/modules/$(KVER)/kernel/drivers/staging
+ endif
+@@ -2276,7 +2290,7 @@ obj-$(CONFIG_RTL8822BU) := $(MODULE_NAME).o
+ 
+ endif
+ 
+-export CONFIG_RTL8822BU = m
++obj-m := $(MODULE_NAME).o
+ 
+ all: modules
+

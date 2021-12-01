@@ -1,4 +1,5 @@
 include $(TOPDIR)/rules.mk
+include $(INCLUDE_DIR)/kernel.mk
 
 PKG_NAME:=rtl88x2bu
 PKG_RELEASE=1
@@ -16,10 +17,9 @@ PKG_SOURCE_VERSION:=e8ad266af883b60e88012957e89bf361924ea5ec
 PKG_MAINTAINER:=Jason <nah@nah.nah>
 PKG_BUILD_PARALLEL:=1
 
+PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
 
-STAMP_CONFIGURED_DEPENDS := $(STAGING_DIR)/usr/include/mac80211-backport/backport/autoconf.h
 
-include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
 
 define KernelPackage/rtl88x2bu
@@ -32,22 +32,10 @@ define KernelPackage/rtl88x2bu
   PROVIDES:=kmod-88x2bu
 endef
 
-NOSTDINC_FLAGS = \
-	-I$(PKG_BUILD_DIR) \
-	-I$(PKG_BUILD_DIR)/include \
-	-I$(STAGING_DIR)/usr/include/mac80211-backport \
-	-I$(STAGING_DIR)/usr/include/mac80211-backport/uapi \
-	-I$(STAGING_DIR)/usr/include/mac80211 \
-	-I$(STAGING_DIR)/usr/include/mac80211/uapi \
-	-include backport/backport.h
-
-NOSTDINC_FLAGS+=-DCONFIG_IOCTL_CFG80211 -DRTW_USE_CFG80211_STA_EVENT -DBUILD_OPENWRT
-
 define Build/Compile
 	+$(MAKE) $(PKG_JOBS) -C "$(LINUX_DIR)" \
 		$(KERNEL_MAKE_FLAGS) \
 		M="$(PKG_BUILD_DIR)" \
-		NOSTDINC_FLAGS="$(NOSTDINC_FLAGS)" \
 		modules
 endef
 
